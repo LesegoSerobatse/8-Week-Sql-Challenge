@@ -39,3 +39,5 @@ The 8-Week-Sql-Challenge has multiple realistic end to end case studies that clo
    - Impact of indexes on simple table operations
    - Loading raw data
    - Table schemas and data types
+
+I am thankul to Danny Ma for creating this wonderful and challenging experience.
