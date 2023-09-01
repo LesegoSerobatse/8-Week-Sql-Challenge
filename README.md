@@ -1,4 +1,4 @@
-## 8-Week-Sql-Challenge
+# 8-Week-Sql-Challenge
 
 The 8-Week-Sql-Challenge has multiple realistic end to end case studies that closely represent the sort of work that is performed in a data analytics role and includes datasets and case studies from the following domains:
 
