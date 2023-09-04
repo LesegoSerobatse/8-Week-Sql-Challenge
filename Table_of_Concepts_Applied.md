@@ -4,7 +4,7 @@ The following table outlines the case study name, SQL concepts applied during th
 
 | Project Name        | SQL Concepts Applied  | Status   |
 |--------------       |-----------            |------------ |
-| Danny's Diner       |                       |Completed    |
+| Danny's Diner       | Aggregate functions, Joins, Group By clause, Common Table Expressions, Window functions, Subqueries, Case Statements                     |Completed    |
 | Pizza Runner        |                       |Completed    |
 | Foodie-Fi           |                       |Completed    |
 | Data Bank           |                       |Completed    |
