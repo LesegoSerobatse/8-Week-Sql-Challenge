@@ -1,4 +1,4 @@
-![Alt text](image.png)
+![Alt text](<Danny's Diner Pics/image.png>)
 
 # Introduction
 
@@ -22,7 +22,7 @@ Danny has shared with you 3 key datasets for this case study:
 
 You can inspect the entity relationship diagram and example data below.
 
-![Alt text](<Danny's Diner.png>)
+![Alt text](<Danny's Diner Pics/Danny's Diner.png>)
 
 
 # Example Datasets
@@ -33,21 +33,21 @@ All datasets exist within the dannys_diner database schema - be sure to include 
 
 The sales table captures all customer_id level purchases with an corresponding order_date and product_id information for when and what menu items were ordered.
 
-![Alt text](image-2.png)
+![Alt text](<Danny's Diner Pics/image-2.png>)
 
 
 ## Table 2: menu
 
 The menu table maps the product_id to the actual product_name and price of each menu item.
 
-![Alt text](image-3.png)
+![Alt text](<Danny's Diner Pics/image-3.png>)
 
 
 ## Table 3: members
 
 The final members table captures the join_date when a customer_id joined the beta version of the Danny’s Diner loyalty program.
 
-![Alt text](image-4.png)
+![Alt text](<Danny's Diner Pics/image-4.png>)
 
 
 
@@ -75,14 +75,14 @@ The following questions are related creating basic data tables that Danny and hi
 
 Recreate the following table output using the available data:
 
-![Alt text](image-5.png)
+![Alt text](<Danny's Diner Pics/image-5.png>)
 
 
 ## Rank All The Things
 
 Danny also requires further information about the ranking of customer products, but he purposely does not need the ranking for non-member purchases so he expects null ranking values for the records when customers are not yet part of the loyalty program.
 
-![Alt text](image-6.png)
+![Alt text](<Danny's Diner Pics/image-6.png>)
 
 
 The full project description and datasets could be found here: [Case Study 1 : Danny's Diner](https://8weeksqlchallenge.com/case-study-1/)

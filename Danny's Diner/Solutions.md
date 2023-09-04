@@ -7,7 +7,7 @@ LEFT JOIN Menu
 ON Sales.Product_ID = Menu.Product_ID
 GROUP BY Customer_ID
 ```
-![Alt text](image-7.png)
+![Alt text](<Danny's Diner Pics/image-7.png>)
 
 
 2. How many days has each customer visited the restaurant?
@@ -17,7 +17,8 @@ SELECT Customer_ID, COUNT(DISTINCT Order_Date) AS 'No.of Days Per Customer'
 FROM Sales
 GROUP BY Customer_ID
 ```
-![Alt text](image-8.png)
+![Alt text](<Danny's Diner Pics/image-8.png>)
+
 
 3. What was the first item from the menu purchased by each customer?
 
@@ -33,7 +34,7 @@ FROM Rank_Table
 WHERE Ranking = 1
 ORDER BY Customer_ID;
 ```
-![Alt text](image-9.png)
+![Alt text](<Danny's Diner Pics/image-9.png>)
 
 4. What is the most purchased item on the menu and how many times was it purchased by all customers?
 
@@ -49,7 +50,7 @@ SELECT TOP 1 *
 FROM tmp
 ORDER BY [Item ordered frequency] DESC;
 ```
-![Alt text](image-10.png)
+![Alt text](<Danny's Diner Pics/image-10.png>)
 
 5. Which item was the most popular for each customer?
 
@@ -71,7 +72,7 @@ SELECT Customer_ID, Product_Name, Counting, Rankor
 FROM Lese
 WHERE Rankor = 1
 ```
-![Alt text](image-11.png)
+![Alt text](<Danny's Diner Pics/image-11.png>)
 
 6. Which item was purchased first by the customer after they became a member?
 
@@ -91,7 +92,7 @@ LEFT JOIN Menu
 ON Goodness.Product_ID = Menu.Product_ID
 WHERE Goodness.Rankee = 1
 ```
-![Alt text](image-13.png)
+![Alt text](<Danny's Diner Pics/image-13.png>)
 
 
 7. Which item was purchased just before the customer became a member?
@@ -111,7 +112,7 @@ LEFT JOIN Menu
 ON Goody.Product_ID = Menu.Product_ID
 WHERE Goody.Rankee = 1
 ```
-![Alt text](image-14.png)
+![Alt text](<Danny's Diner Pics/image-14.png>)
 
 8. What is the total items and amount spent for each member before they became a member?
 
@@ -131,7 +132,7 @@ WITH TloTlo AS
 SELECT DISTINCT Customer_ID, COUNT(Product_ID) OVER (PARTITION BY Customer_ID) AS 'Number of Items Ordered Before Member Join Date', SUM(Price) OVER (PARTITION BY Customer_ID) AS 'Total Amount Spent by Each Customer Before Member Join Date'
 FROM TloTlo
 ```
-![Alt text](image-15.png)
+![Alt text](<Danny's Diner Pics/image-15.png>)
 
 9. If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
 
@@ -150,9 +151,9 @@ WITH Mpho AS
 SELECT DISTINCT Customer_ID, SUM(Points_Earned) OVER (PARTITION BY Customer_ID) AS Total_Points_Earned_By_Customer
 FROM Mpho
 ```
-![Alt text](image-16.png)
+![Alt text](<Danny's Diner Pics/image-16.png>)
 
-10. In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
+10.  In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
 
 ```SQL
 WITH Tshiamo AS		
@@ -176,6 +177,6 @@ SELECT Customer_ID, SUM(Points_Earned) AS 'Members January Points'
 FROM Tshiamo
 GROUP BY Customer_ID
 ```
-![Alt text](image-17.png)
+![Alt text](<Danny's Diner Pics/image-17.png>)
 
 
