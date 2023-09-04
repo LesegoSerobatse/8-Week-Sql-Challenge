@@ -158,7 +158,7 @@ FROM Mpho
 ```SQL
 WITH Tshiamo AS		
 		(
-		SELECT S.Customer_ID, S.Order_Date, S.Product_ID, M.Join_Date, Mn.Price,-- DATEADD(WEEK, 1, M.Join_Date),
+		SELECT S.Customer_ID, S.Order_Date, S.Product_ID, M.Join_Date, Mn.Price,
 		CASE
 			WHEN S.Order_Date < DATEADD(WEEK, 1, M.Join_Date) THEN Mn.Price*20
 			WHEN S.Product_ID = 1 THEN Mn.Price*20
