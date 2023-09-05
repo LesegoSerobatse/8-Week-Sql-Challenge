@@ -41,3 +41,17 @@ The 8-Week-Sql-Challenge has multiple realistic end to end case studies that clo
    - Table schemas and data types
 
 I am thankul to Danny Ma for creating this wonderful and challenging experience.
+
+
+**8-Week-Sql-Challenge**
+
+| Project Name        |  Status   |
+|--------------       |------------ |
+| Danny's Diner       |Completed    |
+| Pizza Runner        |Completed    |
+| Foodie-Fi           |Completed    |
+| Data Bank           |Completed    |
+| Data Mart           |Completed    |
+| Clique Bait         |Completed    |
+| Balanced Tree Clothing Co. |Completed    |
+| Fresh Segments      |In Progress| 
