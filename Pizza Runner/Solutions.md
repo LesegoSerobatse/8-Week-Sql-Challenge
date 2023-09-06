@@ -106,10 +106,11 @@ FROM customer_orders;
 
 ```SQL
 SELECT runner_id, 
-		COUNT(order_id)-SUM (CASE 
-		WHEN cancellation LIKE '%cancellation%' THEN 1
-		ELSE 0
-	END) AS 'Order completed by runners'
+		COUNT(order_id)-
+		SUM (CASE 
+				WHEN cancellation LIKE '%cancellation%' THEN 1
+				ELSE 0
+			END) AS 'Order completed by runners'
 FROM runner_orders
 GROUP BY runner_id;
 ```
@@ -122,9 +123,9 @@ GROUP BY runner_id;
 SELECT customer_orders.pizza_id, 
 		COUNT(customer_orders.pizza_id) - 
 		SUM(CASE 
-		WHEN runner_orders.cancellation LIKE '%cancellation%' THEN 1
-		ELSE 0
-	END) AS 'Number of delivered pizzas'
+				WHEN runner_orders.cancellation LIKE '%cancellation%' THEN 1
+				ELSE 0
+			END) AS 'Number of delivered pizzas'
 FROM customer_orders
 JOIN runner_orders
 ON customer_orders.order_id = runner_orders.order_id
@@ -159,9 +160,9 @@ WITH Ngomi AS
 		(SELECT cus.customer_id, cus.order_id, 
 				COUNT(cus.order_id) - 
 				SUM(CASE 
-				WHEN run.cancellation LIKE '%cancellation%' THEN 1
-				ELSE 0
-			END) AS 'Delivered Orders'
+						WHEN run.cancellation LIKE '%cancellation%' THEN 1
+						ELSE 0
+					END) AS 'Delivered Orders'
 											
 		FROM customer_orders cus
 		LEFT JOIN runner_orders run
