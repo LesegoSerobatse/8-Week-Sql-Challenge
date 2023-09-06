@@ -88,8 +88,7 @@ FROM luus
 ```SQL
 WITH las AS
 	(SELECT *, CASE
-				WHEN LAG(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id 
-				  AND LEAD(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id THEN 1
+				WHEN LAG(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id AND LEAD(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id THEN 1
 			  END AS 'release'
 	FROM temp_nodes),
 	les AS
@@ -116,9 +115,7 @@ WITH las AS
 	(SELECT customer_id, region_id, AVG(days_of_node) AS 'customer_average'
 	FROM lus
 	GROUP BY customer_id, region_id)
-SELECT DISTINCT r.region_name, l.region_id, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS 'median',
-												PERCENTILE_CONT(0.8) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS '80th percentile',
-												PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS '95th percentile'
+SELECT DISTINCT r.region_name, l.region_id, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS 'median', PERCENTILE_CONT(0.8) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS '80th percentile', PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS '95th percentile'
 FROM luus l
 LEFT JOIN regions r
 ON l.region_id = r.region_id
@@ -159,23 +156,24 @@ FROM les
 
 ```SQL
 WITH las AS
-	(SELECT customer_id, MONTH(txn_date) AS 'trans_month', CASE
-															WHEN txn_type = 'deposit' THEN 1
-															ELSE 0
-														  END AS 'deposit_count',
-														  CASE
-															WHEN txn_type = 'purchase' THEN 1
-															ELSE 0
-														  END AS 'purchase_count',
-														  CASE
-															WHEN txn_type = 'withdrawal' THEN 1
-															ELSE 0
-														  END AS 'withdrawal_count'
+	(SELECT customer_id, MONTH(txn_date) AS 'trans_month', 
+			CASE
+				WHEN txn_type = 'deposit' THEN 1
+				ELSE 0
+			END AS 'deposit_count',
+			CASE
+				WHEN txn_type = 'purchase' THEN 1
+				ELSE 0
+			END AS 'purchase_count',
+			CASE
+				WHEN txn_type = 'withdrawal' THEN 1
+				ELSE 0
+			END AS 'withdrawal_count'
 	FROM customer_transactions),
 	les AS
 	(SELECT customer_id, trans_month, SUM(deposit_count) AS 'deposit_month_count',
-									 SUM(purchase_count) AS 'purchase_month_count',
-									 SUM(withdrawal_count) AS 'withdrawal_month_count'
+			SUM(purchase_count) AS 'purchase_month_count',
+			SUM(withdrawal_count) AS 'withdrawal_month_count'
 	FROM las
 	GROUP BY customer_id, trans_month)
 SELECT trans_month, DATENAME(MONTH, CAST('2020-'+CAST(trans_month AS VARCHAR(20))+ '-01' AS DATE)) AS 'month', COUNT(customer_id) AS 'customer_count'
@@ -192,28 +190,27 @@ ORDER BY trans_month
 ```SQL
 WITH les AS
 		 (SELECT customer_id, txn_month, txn_type, txn_amount, record, 
-					CASE
-						WHEN txn_type = 'deposit' THEN 1 * txn_amount
-						ELSE -1 * txn_amount
-					END AS 'running_total_amount'														
+				CASE
+					WHEN txn_type = 'deposit' THEN 1 * txn_amount
+					ELSE -1 * txn_amount
+				END AS 'running_total_amount'														
 		  FROM temp_customer_transactions
 		  WHERE record = 1
 
 		  UNION ALL
 
 		  SELECT t.customer_id, t.txn_month, t.txn_type, t.txn_amount, t.record,
-					CASE
-					   WHEN t.txn_type = 'deposit' THEN r.running_total_amount + (1*t.txn_amount)
-					   WHEN t.txn_type = 'withdrawal' THEN r.running_total_amount + (-1*t.txn_amount)
-					   WHEN t.txn_type = 'purchase' THEN r.running_total_amount + (-1*t.txn_amount)
-					END AS running_total_amount		
+				CASE
+					WHEN t.txn_type = 'deposit' THEN r.running_total_amount + (1*t.txn_amount)
+					WHEN t.txn_type = 'withdrawal' THEN r.running_total_amount + (-1*t.txn_amount)
+					WHEN t.txn_type = 'purchase' THEN r.running_total_amount + (-1*t.txn_amount)
+				END AS running_total_amount		
 		  FROM temp_customer_transactions t
 		  INNER JOIN les r
 		  ON t.record = r.record + 1 AND t.customer_id = r.customer_id),
 		  las AS
 			  (SELECT *,
-					 LAST_VALUE(running_total_amount) OVER (PARTITION BY customer_id, txn_month ORDER BY record
-								RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'month_total'
+					 LAST_VALUE(running_total_amount) OVER (PARTITION BY customer_id, txn_month ORDER BY record RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'month_total'
 			  FROM les),
 		   lis AS
 		   (SELECT customer_id, txn_month, month_total
@@ -250,13 +247,12 @@ FROM temp_month_total
 
 ```SQL
 WITH las AS 
-	(SELECT customer_id, txn_month_1, final_month_total, CASE
-															WHEN txn_month_1 = 1 THEN 0
-															WHEN LAG(final_month_total) OVER (PARTITION BY customer_id ORDER BY txn_month_1) = 0 THEN NULL
-															ELSE (CAST(final_month_total AS FLOAT) - 
-																	LAG(final_month_total) OVER (PARTITION BY customer_id ORDER BY txn_month_1) )
-																	/ ABS(CAST((LAG(final_month_total) OVER (PARTITION BY customer_id ORDER BY txn_month_1)) AS FLOAT)) * 100
-														END AS 'percentage_increase'
+	(SELECT customer_id, txn_month_1, final_month_total, 
+			CASE
+				WHEN txn_month_1 = 1 THEN 0
+				WHEN LAG(final_month_total) OVER (PARTITION BY customer_id ORDER BY txn_month_1) = 0 THEN NULL
+				ELSE (CAST(final_month_total AS FLOAT) - LAG(final_month_total) OVER (PARTITION BY customer_id ORDER BY txn_month_1) )/ ABS(CAST((LAG(final_month_total) OVER (PARTITION BY customer_id ORDER BY txn_month_1)) AS FLOAT)) * 100
+			END AS 'percentage_increase'
 	FROM temp_month_total),
 	les AS
 	(SELECT COUNT(DISTINCT customer_id) AS 'Total_customers' 
@@ -288,10 +284,11 @@ WITH kas AS
 	GROUP BY customer_id, txn_month, month_balance, minimum_running_balance, average_running_balance, maximum_running_balance
 	),
 	kes AS
-	(SELECT *, CASE
-				WHEN month_balance < 0 THEN 0
-				ELSE month_balance
-			  END AS 'data_to_be_allocated'
+	(SELECT *, 
+		CASE
+			WHEN month_balance < 0 THEN 0
+			ELSE month_balance
+		END AS 'data_to_be_allocated'
 	FROM kas
 	),
 	kis AS
@@ -365,7 +362,7 @@ WITH kas AS
 	),
 	kis AS
 	(SELECT txn_month, SUM(minimum_data_to_be_allocated) AS 'minimum_data_to_be_allocated_monthly',
-					   SUM(maximum_data_to_be_allocated) AS 'maximum_data_to_be_allocated_monthly'
+			SUM(maximum_data_to_be_allocated) AS 'maximum_data_to_be_allocated_monthly'
 	FROM kes
 	GROUP BY txn_month
 	)
@@ -387,11 +384,12 @@ For this multi-part challenge question - you have been requested to generate the
    - running customer balance column that includes the impact each transaction
 
 ```SQL
-SELECT customer_id, MONTH(txn_date) AS txn_month, txn_type, txn_amount, CASE
-																			WHEN txn_type = 'deposit' THEN txn_amount
-																			ELSE -1*txn_amount
-																		END AS 'running_balance',
-																		ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY txn_date) AS 'record'
+SELECT customer_id, MONTH(txn_date) AS txn_month, txn_type, txn_amount, 
+		CASE
+			WHEN txn_type = 'deposit' THEN txn_amount
+			ELSE -1*txn_amount
+		END AS 'running_balance',
+		ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY txn_date) AS 'record'
 INTO temp_data_allocation
 FROM customer_transactions 
 
@@ -411,25 +409,22 @@ WITH data_run_balance AS
 
 			 UNION ALL
 
-			 SELECT t.customer_id, t.txn_month, t.txn_type, t.txn_amount, CASE
-																			WHEN t.txn_type = 'deposit' THEN r.running_balance + t.txn_amount
-																			ELSE r.running_balance - t.txn_amount
-																		 END AS running_balance,
-																		 t.record
+			 SELECT t.customer_id, t.txn_month, t.txn_type, t.txn_amount, 
+			 		CASE
+						WHEN t.txn_type = 'deposit' THEN r.running_balance + t.txn_amount
+						ELSE r.running_balance - t.txn_amount
+					END AS running_balance,
+					t.record
 			FROM temp_data_allocation t
 			INNER JOIN data_run_balance r
 			ON t.customer_id = r.customer_id AND t.record = r.record + 1        
 			),
 			las AS
 			(SELECT customer_id, txn_month, txn_type, txn_amount, running_balance, 
-					LAST_VALUE(running_balance) OVER (PARTITION BY customer_id, txn_month ORDER BY txn_month 
-														RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'month_balance',
-					MIN(running_balance) OVER (PARTITION BY customer_id, txn_month ORDER BY txn_month 
-													RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'minimum_running_balance',
-					AVG(running_balance) OVER (PARTITION BY customer_id, txn_month ORDER BY txn_month 
-													RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'average_running_balance',
-					MAX(running_balance) OVER (PARTITION BY customer_id, txn_month ORDER BY txn_month 
-													RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'maximum_running_balance',
+					LAST_VALUE(running_balance) OVER (PARTITION BY customer_id, txn_month ORDER BY txn_month RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'month_balance',
+					MIN(running_balance) OVER (PARTITION BY customer_id, txn_month ORDER BY txn_month RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'minimum_running_balance',
+					AVG(running_balance) OVER (PARTITION BY customer_id, txn_month ORDER BY txn_month RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'average_running_balance',
+					MAX(running_balance) OVER (PARTITION BY customer_id, txn_month ORDER BY txn_month RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'maximum_running_balance',
 					record
 			FROM data_run_balance)
 SELECT *
@@ -488,60 +483,63 @@ WITH les AS
 	FROM las
 	),
 	los AS
-	(SELECT customer_id_1, txn_date_1, CASE
-										  WHEN txn_type IS NULL THEN ''
-										  ELSE txn_type 
-									   END AS 'txn_type_1',
-									   CASE 
-										  WHEN txn_amount IS NULL THEN 0
-										  ELSE txn_amount
-									   END AS 'txn_amount_1',
-									   CAST(0 AS FLOAT) AS 'running', CAST(0 AS FLOAT) AS 'interest_earned', CAST(0 AS FLOAT) AS 'total_amount'
-										, ROW_NUMBER() OVER (PARTITION BY customer_id_1 ORDER BY txn_date_1)  AS 'record'  
+	(SELECT customer_id_1, txn_date_1, 
+			CASE
+				WHEN txn_type IS NULL THEN ''
+				ELSE txn_type 
+			END AS 'txn_type_1',
+			CASE 
+				WHEN txn_amount IS NULL THEN 0
+				ELSE txn_amount
+			END AS 'txn_amount_1',
+			CAST(0 AS FLOAT) AS 'running', CAST(0 AS FLOAT) AS 'interest_earned', CAST(0 AS FLOAT) AS 'total_amount',
+		   ROW_NUMBER() OVER (PARTITION BY customer_id_1 ORDER BY txn_date_1)  AS 'record'  
 	FROM lis
 	),	
 	lus AS
-	(SELECT customer_id_1, txn_date_1, txn_type_1, txn_amount_1, CASE
-																  WHEN txn_type_1 = 'deposit' THEN CAST(txn_amount_1 AS FLOAT)
-																  WHEN txn_type_1 = 'withdrawal' THEN CAST(-1*txn_amount_1 AS FLOAT)
-																  WHEN txn_type_1 = 'purchase' THEN CAST(-1*txn_amount_1 AS FLOAT)
-																  ELSE CAST(0 AS FLOAT)
-																END AS 'running_balance',
-																0 AS 'day_number',
-																interest_earned,
-																CASE
-																  WHEN txn_type_1 = 'deposit' THEN CAST(txn_amount_1 AS FLOAT)
-																  WHEN txn_type_1 = 'withdrawal' THEN CAST(-1*txn_amount_1 AS FLOAT)
-																  WHEN txn_type_1 = 'purchase' THEN CAST(-1*txn_amount_1 AS FLOAT)
-																  ELSE 0
-																END AS 'total_amount',
-																record	
+	(SELECT customer_id_1, txn_date_1, txn_type_1, txn_amount_1,
+			 CASE
+				WHEN txn_type_1 = 'deposit' THEN CAST(txn_amount_1 AS FLOAT)
+				WHEN txn_type_1 = 'withdrawal' THEN CAST(-1*txn_amount_1 AS FLOAT)
+				WHEN txn_type_1 = 'purchase' THEN CAST(-1*txn_amount_1 AS FLOAT)
+				ELSE CAST(0 AS FLOAT)
+			END AS 'running_balance',
+			0 AS 'day_number',
+			interest_earned,
+			CASE
+				WHEN txn_type_1 = 'deposit' THEN CAST(txn_amount_1 AS FLOAT)
+				WHEN txn_type_1 = 'withdrawal' THEN CAST(-1*txn_amount_1 AS FLOAT)
+				WHEN txn_type_1 = 'purchase' THEN CAST(-1*txn_amount_1 AS FLOAT)
+				ELSE 0
+			END AS 'total_amount',
+			record	
 	FROM los
 	WHERE record = 1 
 	
 	UNION ALL
 
-	SELECT t.customer_id_1, t.txn_date_1,t.txn_type_1, t.txn_amount_1, CASE
-																			WHEN t.txn_type_1 = 'deposit' THEN ROUND(CAST(r.total_amount + t.txn_amount_1 AS FLOAT), 2)
-																			WHEN t.txn_type_1 = 'purchase' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
-																			WHEN t.txn_type_1 = 'withdrawal' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
-																			ELSE ROUND(CAST(r.running_balance AS FLOAT),2)
-																	   END AS 'running_balance',
-																	  CASE
-																		WHEN t.txn_type_1 IN ('deposit', 'purchase', 'withdrawal') THEN 0
-																		ELSE r.day_number + 1
-																	  END AS 'day_number',
-																	  CASE
-																		WHEN t.txn_type_1 = '' THEN ROUND(CAST((r.running_balance * 0.06 * (r.day_number + 1))/365 AS FLOAT),2) 
-																		ELSE CAST(0 AS FLOAT)
-																	  END AS 'interest_earned',
-																	  CASE
-																		WHEN t.txn_type_1 = 'deposit' THEN ROUND(CAST(r.total_amount + t.txn_amount_1 AS FLOAT),2)
-																		WHEN t.txn_type_1 = 'purchase' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
-																		WHEN t.txn_type_1 = 'withdrawal' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
-																		ELSE ROUND(CAST(r.running_balance + ((r.running_balance * 0.06 * (r.day_number + 1))/365) AS FLOAT),2)
-																	  END AS 'total_amount',
-																	  t.record
+	SELECT t.customer_id_1, t.txn_date_1,t.txn_type_1, t.txn_amount_1, 
+			CASE
+				WHEN t.txn_type_1 = 'deposit' THEN ROUND(CAST(r.total_amount + t.txn_amount_1 AS FLOAT), 2)
+				WHEN t.txn_type_1 = 'purchase' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
+				WHEN t.txn_type_1 = 'withdrawal' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
+				ELSE ROUND(CAST(r.running_balance AS FLOAT),2)
+			END AS 'running_balance',
+			CASE
+				WHEN t.txn_type_1 IN ('deposit', 'purchase', 'withdrawal') THEN 0
+				ELSE r.day_number + 1
+			END AS 'day_number',
+			CASE
+				WHEN t.txn_type_1 = '' THEN ROUND(CAST((r.running_balance * 0.06 * (r.day_number + 1))/365 AS FLOAT),2) 
+				ELSE CAST(0 AS FLOAT)
+			END AS 'interest_earned',
+			CASE
+				WHEN t.txn_type_1 = 'deposit' THEN ROUND(CAST(r.total_amount + t.txn_amount_1 AS FLOAT),2)
+				WHEN t.txn_type_1 = 'purchase' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
+				WHEN t.txn_type_1 = 'withdrawal' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
+				ELSE ROUND(CAST(r.running_balance + ((r.running_balance * 0.06 * (r.day_number + 1))/365) AS FLOAT),2)
+			END AS 'total_amount',
+			t.record
 	FROM los t
 	INNER JOIN lus r
 	ON t.customer_id_1 = r.customer_id_1 AND t.record = r.record + 1)
@@ -596,60 +594,63 @@ WITH les AS
 	FROM las
 	),
 	los AS
-	(SELECT customer_id_1, txn_date_1, CASE
-										  WHEN txn_type IS NULL THEN ''
-										  ELSE txn_type 
-									   END AS 'txn_type_1',
-									   CASE 
-										  WHEN txn_amount IS NULL THEN 0
-										  ELSE txn_amount
-									   END AS 'txn_amount_1',
-									   CAST(0 AS FLOAT) AS 'running', CAST(0 AS FLOAT) AS 'interest_earned', CAST(0 AS FLOAT) AS 'total_amount'
-										, ROW_NUMBER() OVER (PARTITION BY customer_id_1 ORDER BY txn_date_1)  AS 'record'  
+	(SELECT customer_id_1, txn_date_1,
+			 CASE
+				WHEN txn_type IS NULL THEN ''
+				ELSE txn_type 
+			END AS 'txn_type_1',
+			CASE 
+				WHEN txn_amount IS NULL THEN 0
+				ELSE txn_amount
+			END AS 'txn_amount_1',
+			CAST(0 AS FLOAT) AS 'running', CAST(0 AS FLOAT) AS 'interest_earned', CAST(0 AS FLOAT) AS 'total_amount',
+			ROW_NUMBER() OVER (PARTITION BY customer_id_1 ORDER BY txn_date_1)  AS 'record'  
 	FROM lis
 	),	
 	lus AS
-	(SELECT customer_id_1, txn_date_1, txn_type_1, txn_amount_1, CASE
-																  WHEN txn_type_1 = 'deposit' THEN CAST(txn_amount_1 AS FLOAT)
-																  WHEN txn_type_1 = 'withdrawal' THEN CAST(-1*txn_amount_1 AS FLOAT)
-																  WHEN txn_type_1 = 'purchase' THEN CAST(-1*txn_amount_1 AS FLOAT)
-																  ELSE CAST(0 AS FLOAT)
-																END AS 'running_balance',
-																0 AS 'day_number',
-																interest_earned,
-																CASE
-																  WHEN txn_type_1 = 'deposit' THEN CAST(txn_amount_1 AS FLOAT)
-																  WHEN txn_type_1 = 'withdrawal' THEN CAST(-1*txn_amount_1 AS FLOAT)
-																  WHEN txn_type_1 = 'purchase' THEN CAST(-1*txn_amount_1 AS FLOAT)
-																  ELSE 0
-																END AS 'total_amount',
-																record	
+	(SELECT customer_id_1, txn_date_1, txn_type_1, txn_amount_1, 
+			CASE
+				WHEN txn_type_1 = 'deposit' THEN CAST(txn_amount_1 AS FLOAT)
+				WHEN txn_type_1 = 'withdrawal' THEN CAST(-1*txn_amount_1 AS FLOAT)
+				WHEN txn_type_1 = 'purchase' THEN CAST(-1*txn_amount_1 AS FLOAT)
+				ELSE CAST(0 AS FLOAT)
+			END AS 'running_balance',
+			0 AS 'day_number',
+			interest_earned,
+			CASE
+				WHEN txn_type_1 = 'deposit' THEN CAST(txn_amount_1 AS FLOAT)
+				WHEN txn_type_1 = 'withdrawal' THEN CAST(-1*txn_amount_1 AS FLOAT)
+				WHEN txn_type_1 = 'purchase' THEN CAST(-1*txn_amount_1 AS FLOAT)
+				ELSE 0
+			END AS 'total_amount',
+			record	
 	FROM los
 	WHERE record = 1 
 	
 	UNION ALL
 
-	SELECT t.customer_id_1, t.txn_date_1,t.txn_type_1, t.txn_amount_1, CASE
-																			WHEN t.txn_type_1 = 'deposit' THEN ROUND(CAST(r.total_amount + t.txn_amount_1 AS FLOAT), 2)
-																			WHEN t.txn_type_1 = 'purchase' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
-																			WHEN t.txn_type_1 = 'withdrawal' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
-																			ELSE ROUND(CAST(r.running_balance AS FLOAT),2)
-																	   END AS 'running_balance',
-																	  CASE
-																		WHEN t.txn_type_1 IN ('deposit', 'purchase', 'withdrawal') THEN 0
-																		ELSE r.day_number + 1
-																	  END AS 'day_number',
-																	  CASE
-																		WHEN t.txn_type_1 = '' THEN ROUND(CAST((r.running_balance * POWER(CAST(( 1 + 0.06) AS DECIMAL(18, 15)), CAST(((CAST(r.day_number AS FLOAT)+ CAST(1 AS FLOAT))/CAST(365 AS FLOAT)) AS DECIMAL(18, 15))) - r.running_balance) AS FLOAT),2) 
-																		ELSE CAST(0 AS FLOAT)
-																	  END AS 'interest_earned',
-																	  CASE
-																		WHEN t.txn_type_1 = 'deposit' THEN ROUND(CAST(r.total_amount + t.txn_amount_1 AS FLOAT),2)
-																		WHEN t.txn_type_1 = 'purchase' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
-																		WHEN t.txn_type_1 = 'withdrawal' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
-																		ELSE ROUND(CAST(r.running_balance + ((r.running_balance * POWER(CAST(( 1 + 0.06) AS DECIMAL(18, 15)), CAST(((CAST(r.day_number AS FLOAT)+ CAST(1 AS FLOAT))/CAST(365 AS FLOAT)) AS DECIMAL(18, 15))) - r.running_balance)) AS FLOAT),2)
-																	  END AS 'total_amount',
-																	  t.record
+	SELECT t.customer_id_1, t.txn_date_1,t.txn_type_1, t.txn_amount_1,
+			 CASE
+				WHEN t.txn_type_1 = 'deposit' THEN ROUND(CAST(r.total_amount + t.txn_amount_1 AS FLOAT), 2)
+				WHEN t.txn_type_1 = 'purchase' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
+				WHEN t.txn_type_1 = 'withdrawal' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
+				ELSE ROUND(CAST(r.running_balance AS FLOAT),2)
+			END AS 'running_balance',
+			CASE
+				WHEN t.txn_type_1 IN ('deposit', 'purchase', 'withdrawal') THEN 0
+				ELSE r.day_number + 1
+			END AS 'day_number',
+			CASE
+				WHEN t.txn_type_1 = '' THEN ROUND(CAST((r.running_balance * POWER(CAST(( 1 + 0.06) AS DECIMAL(18, 15)), CAST(((CAST(r.day_number AS FLOAT)+ CAST(1 AS FLOAT))/CAST(365 AS FLOAT)) AS DECIMAL(18, 15))) - r.running_balance) AS FLOAT),2) 
+				ELSE CAST(0 AS FLOAT)
+			END AS 'interest_earned',
+			CASE
+				WHEN t.txn_type_1 = 'deposit' THEN ROUND(CAST(r.total_amount + t.txn_amount_1 AS FLOAT),2)
+				WHEN t.txn_type_1 = 'purchase' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
+				WHEN t.txn_type_1 = 'withdrawal' THEN ROUND(CAST(r.total_amount - t.txn_amount_1 AS FLOAT),2)
+				ELSE ROUND(CAST(r.running_balance + ((r.running_balance * POWER(CAST(( 1 + 0.06) AS DECIMAL(18, 15)), CAST(((CAST(r.day_number AS FLOAT)+ CAST(1 AS FLOAT))/CAST(365 AS FLOAT)) AS DECIMAL(18, 15))) - r.running_balance)) AS FLOAT),2)
+			END AS 'total_amount',
+			t.record
 	FROM los t
 	INNER JOIN lus r
 	ON t.customer_id_1 = r.customer_id_1 AND t.record = r.record + 1)

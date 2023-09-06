@@ -64,9 +64,8 @@ WITH las AS
 	FROM subscriptions
 	GROUP BY customer_id
 	HAVING STRING_AGG(CAST(plan_id AS VARCHAR(20)), ',') = '0,4')
-SELECT COUNT(customers_churned_after_trial) AS 'Number_of_customers_churned_after_trial', ROUND((CAST((COUNT(customers_churned_after_trial)) AS FLOAT)/
-																						  (SELECT COUNT(DISTINCT customer_id) FROM subscriptions)) * 100, 0)
-																						  AS 'Percentage_of_customers_churned_after_trial'
+SELECT COUNT(customers_churned_after_trial) AS 'Number_of_customers_churned_after_trial', 
+	ROUND((CAST((COUNT(customers_churned_after_trial)) AS FLOAT)/(SELECT COUNT(DISTINCT customer_id) FROM subscriptions)) * 100, 0) AS 'Percentage_of_customers_churned_after_trial'
 FROM las;
 ```
 ![Alt text](<Foodie-Fi pics/ffs5.png>)
@@ -84,9 +83,8 @@ SELECT CASE
 		 WHEN customers_plans_after_trial_B = '0,2' THEN 'Upgraded to pro monthly plan'
 		 WHEN customers_plans_after_trial_B = '0,3' THEN 'Upgraded to pro annual plan'
 		 WHEN customers_plans_after_trial_B = '0,4' THEN 'degraded to churn plan'
-	   END AS 'customers_plans_after_trial_period',customers_plans_after_trial_B, ROUND((CAST((COUNT(customers_plans_after_trial_B)) AS FLOAT)/
-																				   (SELECT COUNT(DISTINCT customer_id) FROM subscriptions)) * 100, 2) AS 
-																				   'Percentage_of_customers_after_trial'
+	   END AS 'customers_plans_after_trial_period',customers_plans_after_trial_B,
+	ROUND((CAST((COUNT(customers_plans_after_trial_B)) AS FLOAT)/(SELECT COUNT(DISTINCT customer_id) FROM subscriptions)) * 100, 2) AS 'Percentage_of_customers_after_trial'
 FROM kas
 GROUP BY customers_plans_after_trial_B
 ```
@@ -191,20 +189,21 @@ WITH tas AS
 	(SELECT customer_id, Dates, DATEDIFF(DAY, CAST(date_start AS DATE), CAST(date_end AS DATE)) AS 'Number_of_days_to_annual_plan_from_trial'
 	FROM tos),
 	tuus AS
-	(SELECT Number_of_days_to_annual_plan_from_trial, CASE
-														WHEN Number_of_days_to_annual_plan_from_trial <= 30 THEN '0-30 days'
-														WHEN Number_of_days_to_annual_plan_from_trial >= 31 AND Number_of_days_to_annual_plan_from_trial <= 60 THEN '31-60 days'
-														WHEN Number_of_days_to_annual_plan_from_trial >= 61 AND Number_of_days_to_annual_plan_from_trial <= 90 THEN '61-90 days'
-														WHEN Number_of_days_to_annual_plan_from_trial >= 91 AND Number_of_days_to_annual_plan_from_trial <= 120 THEN '91-120 days'
-														WHEN Number_of_days_to_annual_plan_from_trial >= 121 AND Number_of_days_to_annual_plan_from_trial <= 150 THEN '121-150 days'
-														WHEN Number_of_days_to_annual_plan_from_trial >= 151 AND Number_of_days_to_annual_plan_from_trial <= 180 THEN '151-180 days'
-														WHEN Number_of_days_to_annual_plan_from_trial >= 181 AND Number_of_days_to_annual_plan_from_trial <= 210 THEN '181-210 days'
-														WHEN Number_of_days_to_annual_plan_from_trial >= 211 AND Number_of_days_to_annual_plan_from_trial <= 240 THEN '211-240 days'
-														WHEN Number_of_days_to_annual_plan_from_trial >= 241 AND Number_of_days_to_annual_plan_from_trial <= 270 THEN '241-270 days'
-														WHEN Number_of_days_to_annual_plan_from_trial >= 271 AND Number_of_days_to_annual_plan_from_trial <= 300 THEN '271-300 days'
-														WHEN Number_of_days_to_annual_plan_from_trial >= 301 AND Number_of_days_to_annual_plan_from_trial <= 330 THEN '301-330 days'
-														WHEN Number_of_days_to_annual_plan_from_trial >= 331 AND Number_of_days_to_annual_plan_from_trial <= 360 THEN '331-360 days'
-													 END AS 'days_periods'
+	(SELECT Number_of_days_to_annual_plan_from_trial, 
+		CASE
+			WHEN Number_of_days_to_annual_plan_from_trial <= 30 THEN '0-30 days'
+			WHEN Number_of_days_to_annual_plan_from_trial >= 31 AND Number_of_days_to_annual_plan_from_trial <= 60 THEN '31-60 days'
+			WHEN Number_of_days_to_annual_plan_from_trial >= 61 AND Number_of_days_to_annual_plan_from_trial <= 90 THEN '61-90 days'
+			WHEN Number_of_days_to_annual_plan_from_trial >= 91 AND Number_of_days_to_annual_plan_from_trial <= 120 THEN '91-120 days'
+			WHEN Number_of_days_to_annual_plan_from_trial >= 121 AND Number_of_days_to_annual_plan_from_trial <= 150 THEN '121-150 days'
+			WHEN Number_of_days_to_annual_plan_from_trial >= 151 AND Number_of_days_to_annual_plan_from_trial <= 180 THEN '151-180 days'
+			WHEN Number_of_days_to_annual_plan_from_trial >= 181 AND Number_of_days_to_annual_plan_from_trial <= 210 THEN '181-210 days'
+			WHEN Number_of_days_to_annual_plan_from_trial >= 211 AND Number_of_days_to_annual_plan_from_trial <= 240 THEN '211-240 days'
+			WHEN Number_of_days_to_annual_plan_from_trial >= 241 AND Number_of_days_to_annual_plan_from_trial <= 270 THEN '241-270 days'
+			WHEN Number_of_days_to_annual_plan_from_trial >= 271 AND Number_of_days_to_annual_plan_from_trial <= 300 THEN '271-300 days'
+			WHEN Number_of_days_to_annual_plan_from_trial >= 301 AND Number_of_days_to_annual_plan_from_trial <= 330 THEN '301-330 days'
+			WHEN Number_of_days_to_annual_plan_from_trial >= 331 AND Number_of_days_to_annual_plan_from_trial <= 360 THEN '331-360 days'
+		END AS 'days_periods'
 												
 	FROM tus)
 SELECT days_periods, ROUND(AVG(CAST(Number_of_days_to_annual_plan_from_trial AS FLOAT)), 2) AS 'Average value into 30 day periods'
@@ -294,11 +293,12 @@ BEGIN
 		WHILE ( @Pay <= (SELECT payment_period_plan FROM temp_subs WHERE record = @Counter)) 
 		BEGIN 
 			INSERT INTO subscriptions_c
-				SELECT customer_id, plan_id,  CASE
-												WHEN @Pay = 1 THEN start_date
-												ELSE DATEADD(MONTH, @Pay - 1, start_date )
-											  END AS 'payment_date', plan_name, 
-											  price
+				SELECT customer_id, plan_id,  
+						CASE
+							WHEN @Pay = 1 THEN start_date
+							ELSE DATEADD(MONTH, @Pay - 1, start_date )
+						END AS 'payment_date', 
+						plan_name, price
 				FROM temp_subs
 				WHERE record = @Counter
 			SET @Pay = @Pay + 1 
@@ -331,16 +331,17 @@ WITH kas AS
 	(SELECT * 
 	FROM kas
 	WHERE record NOT IN (SELECT record - 1 FROM kes) )
-SELECT customer_id, plan_id, plan_name, CASE
-											WHEN customer_id = pre_customer AND plan_id = 3 AND pre_plan = 2  AND start_date != pre_date THEN DATEADD(MONTH, 1, pre_date)
-											ELSE start_date
-										END AS 'payment_date', 
-											CASE
-												WHEN customer_id = pre_customer AND  plan_id IN (2,3) AND pre_plan = 1  THEN price - pre_price
-												WHEN price IS NULL THEN 0
-												ELSE price
-											END AS 'amount',
-											ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY customer_id, plan_id, start_date) AS 'payment_order'
+SELECT customer_id, plan_id, plan_name, 
+		CASE
+			WHEN customer_id = pre_customer AND plan_id = 3 AND pre_plan = 2  AND start_date != pre_date THEN DATEADD(MONTH, 1, pre_date)
+			ELSE start_date
+		END AS 'payment_date', 
+		CASE
+			WHEN customer_id = pre_customer AND  plan_id IN (2,3) AND pre_plan = 1  THEN price - pre_price
+			WHEN price IS NULL THEN 0
+			ELSE price
+		END AS 'amount',
+		ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY customer_id, plan_id, start_date) AS 'payment_order'
 FROM kis
 ```
 ![Alt text](<Foodie-Fi pics/ffs15.png>)

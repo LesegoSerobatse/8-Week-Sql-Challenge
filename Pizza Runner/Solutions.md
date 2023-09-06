@@ -119,10 +119,11 @@ GROUP BY runner_id;
 4. How many of each type of pizza was delivered?
 
 ```SQL
-SELECT customer_orders.pizza_id, COUNT(customer_orders.pizza_id) - SUM(CASE
-																			WHEN runner_orders.cancellation LIKE '%cancellation%' THEN 1
-																			ELSE 0
-																		END) AS 'Number of delivered pizzas'
+SELECT customer_orders.pizza_id, 
+		COUNT(customer_orders.pizza_id) - SUM(CASE
+												WHEN runner_orders.cancellation LIKE '%cancellation%' THEN 1
+												ELSE 0
+											  END) AS 'Number of delivered pizzas'
 FROM customer_orders
 JOIN runner_orders
 ON customer_orders.order_id = runner_orders.order_id
@@ -154,10 +155,11 @@ ON l.pizza_id = p.pizza_id
 
 ```SQL
 WITH Ngomi AS
-		(SELECT cus.customer_id, cus.order_id, COUNT(cus.order_id) - SUM(CASE 
-																			WHEN run.cancellation LIKE '%cancellation%' THEN 1
-																			ELSE 0
-																		 END) AS 'Delivered Orders'
+		(SELECT cus.customer_id, cus.order_id, 
+				COUNT(cus.order_id) - SUM(CASE 
+											WHEN run.cancellation LIKE '%cancellation%' THEN 1
+											ELSE 0
+										  END) AS 'Delivered Orders'
 											
 		FROM customer_orders cus
 		LEFT JOIN runner_orders run
@@ -181,18 +183,18 @@ WITH Leg AS
 	),
 	 Arm AS
 		(SELECT Pizza_Number, customer_id, 
-							SUM(CASE
-									WHEN LEN(l.exclusions) = 0 AND LEN(l.extras) = 0 THEN 1
-									ELSE 0
-								 END) AS No_Change_1,
-							SUM(CASE
-									WHEN LEN(l.exclusions) != 0 OR LEN(l.extras) != 0 THEN 1
-									ELSE 0
-								 END) AS Change_1,
-							SUM(CASE
-									WHEN l.cancellation LIKE '%cancellation%' THEN 1
-									ELSE 0
-								END) AS Chancellation
+				SUM(CASE
+						WHEN LEN(l.exclusions) = 0 AND LEN(l.extras) = 0 THEN 1
+						ELSE 0
+					END) AS No_Change_1,
+				SUM(CASE
+						WHEN LEN(l.exclusions) != 0 OR LEN(l.extras) != 0 THEN 1
+						ELSE 0
+					END) AS Change_1,
+				SUM(CASE
+						WHEN l.cancellation LIKE '%cancellation%' THEN 1
+						ELSE 0
+					END) AS Chancellation
 		FROM Leg l
 		GROUP BY Pizza_Number, customer_id)
 
@@ -219,10 +221,11 @@ WITH lese AS
 		LEFT JOIN runner_orders r
 		ON c.order_id = r.order_id),
 	 tese AS
-		(SELECT  [Pizza Number], SUM(CASE
-										WHEN LEN(exclusions) != 0 AND LEN(extras) != 0 AND LEN(cancellation) = 0 THEN 1
-										ELSE 0
-									END) AS 'Both Changes'
+		(SELECT  [Pizza Number], 
+					SUM(CASE
+							WHEN LEN(exclusions) != 0 AND LEN(extras) != 0 AND LEN(cancellation) = 0 THEN 1
+							ELSE 0
+						END) AS 'Both Changes'
 		FROM lese
 		GROUP BY [Pizza Number])
 SELECT SUM([Both Changes]) AS 'Number of Pizzas with both changes'
@@ -358,9 +361,7 @@ WITH tt AS
 	LEFT JOIN pizza_toppings p
 	ON tt.topping_id = p.topping_id),
 	temp AS
-	(SELECT pizza_id, STUFF( (SELECT DISTINCT ','+ topping_name 
-							 FROM nn
-							 WHERE pizza_id = t.pizza_id FOR XML PATH('')), 1, 1, '') AS 'Pizza_standard_ingredients'
+	(SELECT pizza_id, STUFF( (SELECT DISTINCT ','+ topping_name FROM nn WHERE pizza_id = t.pizza_id FOR XML PATH('')), 1, 1, '') AS 'Pizza_standard_ingredients'
 	FROM nn t
 	GROUP BY t.pizza_id)
 SELECT piz.pizza_name, te.Pizza_standard_ingredients
@@ -387,8 +388,7 @@ WITH tem AS
 	 GROUP BY t.Extra, p.topping_name)
 SELECT topping_name, Extra, [Extra Frequency]
 FROM tep
-WHERE [Extra Frequency] = (SELECT MAX([Extra Frequency])
-						   FROM tep)
+WHERE [Extra Frequency] = (SELECT MAX([Extra Frequency] FROM tep)
 ```
 ![Alt text](<Pizza Runner pics/pro1.png>)
 
@@ -409,8 +409,7 @@ WITH tem AS
 	 GROUP BY t.Exclusion, p.topping_name)
 SELECT topping_name, Exclusion, [Exclusion Frequency] 
 FROM tep
-WHERE [Exclusion Frequency] = (SELECT MAX([Exclusion Frequency])
-							   FROM tep)
+WHERE [Exclusion Frequency] = (SELECT MAX([Exclusion Frequency]) FROM tep)
 ```
 ![Alt text](<Pizza Runner pics/pro2.png>)
 
@@ -471,13 +470,15 @@ SELECT * INTO Customa_Ordas
 FROM Cre;
 
 WITH Leaf AS
-		(SELECT c.order_id, c.customer_id, c.pizza_id, c.exclusions, c.extras, c.order_time, p.pizza_name, CASE
-																												WHEN e.toppings_names IS NULL THEN ''
-																												ELSE 'Exclude ' + e.toppings_names
-																											END AS Exc, CASE
-																															WHEN ex.toppingZ_nameZ IS NULL THEN ''
-																															ELSE 'Extra ' + ex.toppingZ_nameZ
-																														 END AS Ext
+		(SELECT c.order_id, c.customer_id, c.pizza_id, c.exclusions, c.extras, c.order_time, p.pizza_name, 
+				CASE
+					WHEN e.toppings_names IS NULL THEN ''
+					ELSE 'Exclude ' + e.toppings_names
+				END AS Exc, 
+				CASE
+					WHEN ex.toppingZ_nameZ IS NULL THEN ''
+					ELSE 'Extra ' + ex.toppingZ_nameZ
+				END AS Ext
 	FROM Customa_Ordas c
 	LEFT JOIN Exclusions e
 	ON c.record = e.record
@@ -490,12 +491,13 @@ SELECT * INTO New_Customa_Ordaz
 FROM Leaf;
 
 
-SELECT order_id, customer_id, pizza_id, exclusions, extras, order_time, CASE
-																			WHEN Exc LIKE '' AND Ext LIKE '' THEN ''
-																			WHEN LEN(Exc) != 0 AND LEN(Ext) = 0 THEN CAST(pizza_name AS VARCHAR(20)) + ' - ' + Exc
-																			WHEN LEN(Exc) = 0 AND LEN(Ext) != 0 THEN CAST(pizza_name AS VARCHAR(20)) + ' - ' + Ext
-																			WHEN LEN(Exc) != 0 AND LEN(Ext) != 0 THEN CAST(pizza_name AS VARCHAR(20)) + ' - '+ Exc + ' - ' + Ext
-																		END AS 'Pizza Type - Exclusions - Extras'
+SELECT order_id, customer_id, pizza_id, exclusions, extras, order_time, 
+		CASE
+			WHEN Exc LIKE '' AND Ext LIKE '' THEN ''
+			WHEN LEN(Exc) != 0 AND LEN(Ext) = 0 THEN CAST(pizza_name AS VARCHAR(20)) + ' - ' + Exc
+			WHEN LEN(Exc) = 0 AND LEN(Ext) != 0 THEN CAST(pizza_name AS VARCHAR(20)) + ' - ' + Ext
+			WHEN LEN(Exc) != 0 AND LEN(Ext) != 0 THEN CAST(pizza_name AS VARCHAR(20)) + ' - '+ Exc + ' - ' + Ext
+		END AS 'Pizza Type - Exclusions - Extras'
 FROM New_Customa_Ordaz;
 ```
 ![Alt text](<Pizza Runner pics/pro4.png>)
@@ -515,19 +517,21 @@ WITH las AS
 	FROM las
 	CROSS APPLY STRING_SPLIT(toppings, ',')),
 	lis AS
-	(SELECT record, exclusions, matching, CASE
-											WHEN LEN(exclusions) = 0 THEN matching
-											WHEN LEN(exclusions) = 1 AND TRIM(matching) != (exclusions) THEN matching
-											WHEN LEN(exclusions) = 1 AND TRIM(matching) = (exclusions) THEN ''
-											ELSE TRIM(matching FROM (exclusions))
-										 END AS Tried
+	(SELECT record, exclusions, matching, 
+			CASE
+				WHEN LEN(exclusions) = 0 THEN matching
+				WHEN LEN(exclusions) = 1 AND TRIM(matching) != (exclusions) THEN matching
+				WHEN LEN(exclusions) = 1 AND TRIM(matching) = (exclusions) THEN ''
+				ELSE TRIM(matching FROM (exclusions))
+			END AS Tried
 	FROM les),
 	los AS
-	(SELECT record, exclusions, matching, CASE
-											WHEN Tried LIKE ',%' OR Tried LIKE '%,' THEN ''
-											WHEN Tried LIKE '%,%' AND Tried != matching THEN matching
-											ELSE Tried
-										 END AS Fin_Tried
+	(SELECT record, exclusions, matching, 
+			CASE
+				WHEN Tried LIKE ',%' OR Tried LIKE '%,' THEN ''
+				WHEN Tried LIKE '%,%' AND Tried != matching THEN matching
+				ELSE Tried
+			END AS Fin_Tried
 	FROM lis),
 	lus AS
 	(SELECT record, STRING_AGG(Fin_Tried, ',') AS excluded
@@ -553,10 +557,11 @@ WITH las AS
 	LEFT JOIN pizza_toppings p
 	ON m.ingredienta = p.topping_id),
 	mus AS
-	(SELECT record, ingredienta, CASE
-								 WHEN countings = 1 THEN topping_name
-								 ELSE CAST(countings AS VARCHAR(2))+'x'+ topping_name
-								END AS frequency_count
+	(SELECT record, ingredienta, 
+			CASE
+				WHEN countings = 1 THEN topping_name
+				ELSE CAST(countings AS VARCHAR(2))+'x'+ topping_name
+			END AS frequency_count
 	FROM mos),
 	nas AS
 	(SELECT record, STRING_AGG(frequency_count, ',') WITHIN GROUP (ORDER BY frequency_count ) AS pizza_recipe_ingredients
@@ -586,10 +591,11 @@ WITH fas AS
 	FROM fas
 	CROSS APPLY STRING_SPLIT(toppings, ',')),
 	fis AS
-	(SELECT record, exclusions, ingred, CASE
-										 WHEN LEN(REPLACE((exclusions), TRIM(ingred), '')) < LEN((exclusions)) THEN ''
-										 ELSE ingred
-									   END AS ingred_2
+	(SELECT record, exclusions, ingred, 
+			CASE
+				WHEN LEN(REPLACE((exclusions), TRIM(ingred), '')) < LEN((exclusions)) THEN ''
+				ELSE ingred
+			END AS ingred_2
 	FROM fes),
 	fos AS
 	(SELECT record, STRING_AGG(ingred_2, ',') AS ingrediets
@@ -743,15 +749,13 @@ WHERE c.order_id < 6
 5. If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras and each runner is paid $0.30 per kilometre traveled - how much money does Pizza Runner have left over after these deliveries?
 
 ```SQL
-SELECT SUM(IIF(c.pizza_id = 1, 12, 10)) -   ((SELECT SUM(CAST(distance AS FLOAT))
-												 FROM runner_orders
-												 WHERE order_id < 6) * 0.3 ) AS 'Total_money_left_for_Pizza_Runner_in_$'
-	FROM customer_orders c
-	LEFT JOIN runner_orders r
-	ON c.order_id = r.order_id
-	LEFT JOIN pizza_names p
-	ON c.pizza_id = p.pizza_id
-	WHERE c.order_id < 6 
+SELECT SUM(IIF(c.pizza_id = 1, 12, 10)) -   ((SELECT SUM(CAST(distance AS FLOAT)) FROM runner_orders WHERE order_id < 6) * 0.3 ) AS 'Total_money_left_for_Pizza_Runner_in_$'
+FROM customer_orders c
+LEFT JOIN runner_orders r
+ON c.order_id = r.order_id
+LEFT JOIN pizza_names p
+ON c.pizza_id = p.pizza_id
+WHERE c.order_id < 6 
 ```
 ![Alt text](<Pizza Runner pics/prr6.png>)
 
