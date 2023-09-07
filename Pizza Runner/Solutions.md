@@ -473,15 +473,15 @@ SELECT * INTO Customa_Ordas
 FROM Cre;
 
 WITH Leaf AS
-		(SELECT c.order_id, c.customer_id, c.pizza_id, c.exclusions, c.extras, c.order_time, p.pizza_name, 
-				CASE
-					WHEN e.toppings_names IS NULL THEN ''
-					ELSE 'Exclude ' + e.toppings_names
-				END AS Exc, 
-				CASE
-					WHEN ex.toppingZ_nameZ IS NULL THEN ''
-					ELSE 'Extra ' + ex.toppingZ_nameZ
-				END AS Ext
+	(SELECT c.order_id, c.customer_id, c.pizza_id, c.exclusions, c.extras, c.order_time, p.pizza_name, 
+		CASE
+		   WHEN e.toppings_names IS NULL THEN ''
+		   ELSE 'Exclude ' + e.toppings_names
+		END AS Exc, 
+		CASE
+		   WHEN ex.toppingZ_nameZ IS NULL THEN ''
+		   ELSE 'Extra ' + ex.toppingZ_nameZ
+		END AS Ext
 	FROM Customa_Ordas c
 	LEFT JOIN Exclusions e
 	ON c.record = e.record
