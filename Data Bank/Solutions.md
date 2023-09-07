@@ -41,30 +41,25 @@ GROUP BY r.region_name
 4. How many days on average are customers reallocated to a different node?
 
 ```SQL
-SELECT *
-INTO temp_nodes
-FROM customer_nodes 
-WHERE YEAR(end_date) != '9999'
-ORDER BY customer_id, start_date
-
 WITH las AS
-	(SELECT *, CASE
-				WHEN LAG(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id 
-				  AND LEAD(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id THEN 1
-			  END AS 'release'
+	(SELECT *, 
+	        CASE
+	           WHEN LAG(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id 
+	             AND LEAD(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id THEN 1
+	        END AS 'release'
 	FROM temp_nodes),
 	les AS
 	(SELECT customer_id, region_id, node_id, start_date, end_date
 	FROM las
 	WHERE release IS NULL),
 	lis AS
-	(SELECT *, CASE
-				WHEN LAG(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id 
-					THEN LAG(start_date) OVER (PARTITION BY customer_id ORDER BY start_date) 
-				WHEN LEAD(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id
-					THEN NULL
-				ELSE start_date
-			  END AS 'final_start_date'
+	(SELECT *, 
+	        CASE
+	           WHEN LAG(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id 
+			        THEN LAG(start_date) OVER (PARTITION BY customer_id ORDER BY start_date) 
+	           WHEN LEAD(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id THEN NULL
+	           ELSE start_date
+	        END AS 'final_start_date'
 	FROM les),
 	los AS
 	(SELECT customer_id, region_id, node_id, final_start_date, end_date
@@ -87,22 +82,25 @@ FROM luus
 
 ```SQL
 WITH las AS
-	(SELECT *, CASE
-				WHEN LAG(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id AND LEAD(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id THEN 1
-			  END AS 'release'
+	(SELECT *, 
+	        CASE
+	           WHEN LAG(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id 
+	             AND LEAD(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id THEN 1
+	        END AS 'release'
 	FROM temp_nodes),
 	les AS
 	(SELECT customer_id, region_id, node_id, start_date, end_date
 	FROM las
 	WHERE release IS NULL),
 	lis AS
-	(SELECT *, CASE
-				WHEN LAG(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id 
-					THEN LAG(start_date) OVER (PARTITION BY customer_id ORDER BY start_date) 
-				WHEN LEAD(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id
-					THEN NULL
-				ELSE start_date
-			  END AS 'final_start_date'
+	(SELECT *, 
+	        CASE
+	           WHEN LAG(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id 
+	                THEN LAG(start_date) OVER (PARTITION BY customer_id ORDER BY start_date) 
+	           WHEN LEAD(node_id) OVER (PARTITION BY customer_id ORDER BY start_date) = node_id
+	                THEN NULL
+	           ELSE start_date
+	        END AS 'final_start_date'
 	FROM les),
 	los AS
 	(SELECT customer_id, region_id, node_id, final_start_date, end_date
@@ -115,10 +113,13 @@ WITH las AS
 	(SELECT customer_id, region_id, AVG(days_of_node) AS 'customer_average'
 	FROM lus
 	GROUP BY customer_id, region_id)
-SELECT DISTINCT r.region_name, l.region_id, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS 'median', PERCENTILE_CONT(0.8) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS '80th percentile', PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS '95th percentile'
+SELECT DISTINCT r.region_name, l.region_id, 
+                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS 'median',
+                PERCENTILE_CONT(0.8) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS '80th percentile',
+                PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY l.customer_average) OVER (PARTITION BY l.region_id) AS '95th percentile'
 FROM luus l
 LEFT JOIN regions r
-ON l.region_id = r.region_id
+ON l.region_id = r.region_id;
 ```
 ![Alt text](<data bank pics/dbs5.png>)
 
@@ -141,13 +142,15 @@ GROUP BY txn_type
 
 ```SQL
 WITH les AS
-	(SELECT customer_id,  COUNT(txn_type) AS 'unique_count', SUM(txn_amount) AS 'total_amount_for_each_deposit_transaction_type'
+	(SELECT customer_id,  
+	        COUNT(txn_type) AS 'unique_count', 
+	        SUM(txn_amount) AS 'total_amount_for_each_deposit_transaction_type'
 	FROM customer_transactions
 	WHERE txn_type = 'deposit'
 	GROUP BY customer_id)
 SELECT AVG(unique_count) AS 'average total historical deposit counts',
-			AVG(total_amount_for_each_deposit_transaction_type) AS 'average amounts for all customers'
-FROM les
+       AVG(total_amount_for_each_deposit_transaction_type) AS 'average amounts for all customers'
+FROM les;
 ```
 ![Alt text](<data bank pics/dbs7.png>)
 
