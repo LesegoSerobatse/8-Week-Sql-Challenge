@@ -1,7 +1,8 @@
 1. What is the total amount each customer spent at the restaurant?
 
 ```SQL
-SELECT Customer_ID, SUM(Price) AS 'Total Amount For Each Customer'
+SELECT Customer_ID, 
+       SUM(Price) AS 'Total Amount For Each Customer'
 FROM Sales
 LEFT JOIN Menu 
 ON Sales.Product_ID = Menu.Product_ID
@@ -13,7 +14,8 @@ GROUP BY Customer_ID
 2. How many days has each customer visited the restaurant?
 
 ```SQL
-SELECT Customer_ID, COUNT(DISTINCT Order_Date) AS 'No.of Days Per Customer'
+SELECT Customer_ID, 
+       COUNT(DISTINCT Order_Date) AS 'No.of Days Per Customer'
 FROM Sales
 GROUP BY Customer_ID
 ```
