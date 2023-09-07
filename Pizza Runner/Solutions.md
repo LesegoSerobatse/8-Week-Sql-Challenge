@@ -106,11 +106,11 @@ FROM customer_orders;
 
 ```SQL
 SELECT runner_id, 
-		COUNT(order_id)-
-		SUM (CASE 
-				WHEN cancellation LIKE '%cancellation%' THEN 1
-				ELSE 0
-			END) AS 'Order completed by runners'
+       COUNT(order_id)-SUM 
+                         (CASE
+                             WHEN cancellation LIKE '%cancellation%' THEN 1
+                             ELSE 0
+                          END) AS 'Order completed by runners'
 FROM runner_orders
 GROUP BY runner_id;
 ```
@@ -121,15 +121,15 @@ GROUP BY runner_id;
 
 ```SQL
 SELECT customer_orders.pizza_id, 
-		COUNT(customer_orders.pizza_id) - 
-		SUM(CASE 
-				WHEN runner_orders.cancellation LIKE '%cancellation%' THEN 1
-				ELSE 0
-			END) AS 'Number of delivered pizzas'
+       COUNT(customer_orders.pizza_id) - SUM
+                                            (CASE
+                                                WHEN runner_orders.cancellation LIKE '%cancellation%' THEN 1
+                                                ELSE 0
+                                             END) AS 'Number of delivered pizzas'
 FROM customer_orders
 JOIN runner_orders
 ON customer_orders.order_id = runner_orders.order_id
-GROUP BY customer_orders.pizza_id
+GROUP BY customer_orders.pizza_id;
 ```
 ![Alt text](<Pizza Runner pics/prm4.png>)
 
@@ -157,19 +157,18 @@ ON l.pizza_id = p.pizza_id
 
 ```SQL
 WITH Ngomi AS
-		(SELECT cus.customer_id, cus.order_id, 
-				COUNT(cus.order_id) - 
-				SUM(CASE 
-						WHEN run.cancellation LIKE '%cancellation%' THEN 1
-						ELSE 0
-					END) AS 'Delivered Orders'
+		(SELECT cus.customer_id, cus.order_id, COUNT(cus.order_id) - SUM
+		                                                               (CASE 
+		                                                                   WHEN run.cancellation LIKE '%cancellation%' THEN 1
+		                                                                   ELSE 0
+		                                                                END) AS 'Delivered Orders'
 											
 		FROM customer_orders cus
 		LEFT JOIN runner_orders run
 		ON cus.order_id = run.order_id
 		GROUP BY cus.order_id, cus.customer_id)
 SELECT MAX([Delivered Orders]) AS 'Largest Order Delivered'
-FROM Ngomi N
+FROM Ngomi N;
 ```
 ![Alt text](<Pizza Runner pics/prm6.png>)
 
@@ -186,31 +185,32 @@ WITH Leg AS
 	),
 	 Arm AS
 		(SELECT Pizza_Number, customer_id, 
-				SUM(CASE
-						WHEN LEN(l.exclusions) = 0 AND LEN(l.extras) = 0 THEN 1
-						ELSE 0
-					END) AS No_Change_1,
-				SUM(CASE
-						WHEN LEN(l.exclusions) != 0 OR LEN(l.extras) != 0 THEN 1
-						ELSE 0
-					END) AS Change_1,
-				SUM(CASE
-						WHEN l.cancellation LIKE '%cancellation%' THEN 1
-						ELSE 0
-					END) AS Chancellation
+		        SUM(CASE
+		               WHEN LEN(l.exclusions) = 0 AND LEN(l.extras) = 0 THEN 1
+		               ELSE 0
+		            END) AS No_Change_1,
+		        SUM(CASE
+		               WHEN LEN(l.exclusions) != 0 OR LEN(l.extras) != 0 THEN 1
+		               ELSE 0
+		            END) AS Change_1,
+		        SUM(CASE
+		               WHEN l.cancellation LIKE '%cancellation%' THEN 1
+		               ELSE 0
+		            END) AS Chancellation
 		FROM Leg l
 		GROUP BY Pizza_Number, customer_id)
 
-SELECT customer_id,	SUM(CASE
-							WHEN Chancellation = 0 THEN No_Change_1
-							ELSE 0
-						END) AS No_Changes,
-					SUM(CASE
-							WHEN Chancellation = 0 THEN Change_1
-							ELSE 0
-						END) AS Changed
+SELECT customer_id,	
+       SUM(CASE
+              WHEN Chancellation = 0 THEN No_Change_1
+              ELSE 0
+           END) AS No_Changes,
+       SUM(CASE
+              WHEN Chancellation = 0 THEN Change_1
+              ELSE 0
+           END) AS Changed
 FROM Arm
-GROUP BY customer_id
+GROUP BY customer_id;
 ```
 ![Alt text](<Pizza Runner pics/prm7.png>)
 
@@ -225,14 +225,14 @@ WITH lese AS
 		ON c.order_id = r.order_id),
 	 tese AS
 		(SELECT  [Pizza Number], 
-					SUM(CASE
-							WHEN LEN(exclusions) != 0 AND LEN(extras) != 0 AND LEN(cancellation) = 0 THEN 1
-							ELSE 0
-						END) AS 'Both Changes'
+		         SUM(CASE
+		                WHEN LEN(exclusions) != 0 AND LEN(extras) != 0 AND LEN(cancellation) = 0 THEN 1
+		                ELSE 0
+		             END) AS 'Both Changes'
 		FROM lese
 		GROUP BY [Pizza Number])
 SELECT SUM([Both Changes]) AS 'Number of Pizzas with both changes'
-FROM tese
+FROM tese;
 ```
 ![Alt text](<Pizza Runner pics/prm8.png>)
 
