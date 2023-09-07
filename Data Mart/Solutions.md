@@ -27,54 +27,53 @@ In a single query, perform the following operations and generate a new table in 
 
 ```SQL
 SELECT CONVERT(DATE,  
-                CASE
-					WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
-					    THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
-					ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
-				END, 103) AS week_date,
-				CASE
-					WHEN YEAR(CONVERT(DATE,  
-                                CASE
-									WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
-										THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
-									ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
-								END, 103)) = '2018'
-						  THEN DATEPART(WEEK, DATEADD(DAY, -1, CONVERT(DATE,  CASE
-																				WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
-																					THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
-																				ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
-																			   END, 103)))
-						WHEN YEAR(CONVERT(DATE,  CASE
-													WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
-														THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
-														ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
-													END, 103)) = '2019'
-						  THEN DATEPART(WEEK, DATEADD(DAY, -2, CONVERT(DATE,  CASE
-																				WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
-																					THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
-																				ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
-																			   END, 103)))
-						WHEN YEAR(CONVERT(DATE,  CASE
-													WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
-														THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
-														ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
-													END, 103)) = '2020'
-						  THEN DATEPART(WEEK, DATEADD(DAY, -3, CONVERT(DATE,  CASE
-																				WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
-																					THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
-																				ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
-																			   END, 103)))
+                    CASE
+                       WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
+                         THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
+                       ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
+                    END, 103) AS week_date,
+                    CASE
+                       WHEN YEAR(CONVERT(DATE, CASE
+                                                  WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
+                                                    THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
+                                                  ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
+                                               END, 103)) = '2018'
+                            THEN DATEPART(WEEK, DATEADD(DAY, -1, CONVERT(DATE, CASE
+                                                                                  WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
+                                                                                       THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
+                                                                                  ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
+                                                                               END, 103)))
+                       WHEN YEAR(CONVERT(DATE, CASE
+                                                  WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
+                                                       THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
+                                                  ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
+                                               END, 103)) = '2019'
+                            THEN DATEPART(WEEK, DATEADD(DAY, -2, CONVERT(DATE, CASE
+                                                                                  WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
+                                                                                       THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
+                                                                                  ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
+                                                                               END, 103)))
+                       WHEN YEAR(CONVERT(DATE, CASE
+                                                  WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
+                                                       THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
+                                                  ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
+                                               END, 103)) = '2020'
+                            THEN DATEPART(WEEK, DATEADD(DAY, -3, CONVERT(DATE, CASE
+                                                                                  WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
+                                                                                       THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
+                                                                                  ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
+                                                                               END, 103)))
 					  END AS 'week_number',
-					  MONTH(CONVERT(DATE,  CASE
-											WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
-												THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
-											ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
-										   END, 103)) AS 'month_number',
-					   YEAR(CONVERT(DATE,  CASE
-											WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
-												THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
-											ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
-										   END, 103)) AS 'calender_year',
+					  MONTH(CONVERT(DATE, CASE
+                                              WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
+                                                   THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
+                                              ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
+                                          END, 103)) AS 'month_number',
+					   YEAR(CONVERT(DATE, CASE
+                                             WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
+                                                  THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
+                                             ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
+                                          END, 103)) AS 'calender_year',
 						CASE
 							WHEN segment = 'null' THEN 'unknown'
 							WHEN RIGHT(segment, 1) = '1' THEN 'Young Adults'
@@ -91,14 +90,15 @@ SELECT CONVERT(DATE,
 INTO clean_weekly_sales_1					 					 
 FROM weekly_sales
 ORDER BY CONVERT(DATE,  CASE
-						WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
-							THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
-						ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
-					   END, 103);
+                           WHEN CHARINDEX('/', STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0') )= 2
+                                THEN STUFF(STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0'), 1, 0, '0') 
+                           ELSE STUFF(STUFF(week_date, LEN(week_date)-1, 0, '20'), (CHARINDEX('/', STUFF(week_date, LEN(week_date)-1, 0, '20')) + 1), 0, '0')
+                        END, 103);
+
 
 SELECT *
 FROM clean_weekly_sales_1
-ORDER BY week_date
+ORDER BY week_date;
 ```
 **Note:** In this exercise I just wanted to practice my use of string functions and manipulation, because I could've just used the convert function 
 ```SQL 
@@ -130,11 +130,11 @@ WITH las AS
 	 FROM GENERATE_SERIES(0, 156, 1)),
 	 les AS
 	(SELECT date_missing, CASE
-							WHEN date_missing = '2018-01-01' THEN 1
-							WHEN YEAR(date_missing) = '2018' THEN DATEPART(WEEK, DATEADD(DAY, -1, date_missing))
-							WHEN YEAR(date_missing) = '2019' THEN DATEPART(WEEK, DATEADD(DAY, -2, date_missing))
-							WHEN YEAR(date_missing) = '2020' THEN DATEPART(WEEK, DATEADD(DAY, -3, date_missing))
-						  END AS 'week_number_missing'
+	                         WHEN date_missing = '2018-01-01' THEN 1
+	                         WHEN YEAR(date_missing) = '2018' THEN DATEPART(WEEK, DATEADD(DAY, -1, date_missing))
+	                         WHEN YEAR(date_missing) = '2019' THEN DATEPART(WEEK, DATEADD(DAY, -2, date_missing))
+	                         WHEN YEAR(date_missing) = '2020' THEN DATEPART(WEEK, DATEADD(DAY, -3, date_missing))
+	                         END AS 'week_number_missing'
 	FROM las),
 	lis AS
 	(SELECT c.week_date, c.week_number, l.date_missing, l.week_number_missing
@@ -144,12 +144,12 @@ WITH las AS
 	WHERE week_date IS NULL),
 	los AS
 	(SELECT date_missing, week_number_missing, CASE
-												WHEN LAG(week_number_missing) OVER (PARTITION BY YEAR(date_missing) ORDER BY date_missing) + 1 = week_number_missing
-													AND LEAD(week_number_missing) OVER (PARTITION BY YEAR(date_missing) ORDER BY date_missing) - 1 = week_number_missing
-													THEN 0
-												ELSE week_number_missing
-											  END AS 'week_missing_range',
-											  ROW_NUMBER() OVER (PARTITION BY YEAR(date_missing) ORDER BY date_missing) AS 'record'
+	                                              WHEN LAG(week_number_missing) OVER (PARTITION BY YEAR(date_missing) ORDER BY date_missing) + 1 = week_number_missing
+	                                                 AND LEAD(week_number_missing) OVER (PARTITION BY YEAR(date_missing) ORDER BY date_missing) - 1 = week_number_missing
+	                                                   THEN 0
+	                                              ELSE week_number_missing
+	                                           END AS 'week_missing_range',
+	        ROW_NUMBER() OVER (PARTITION BY YEAR(date_missing) ORDER BY date_missing) AS 'record'
 	FROM lis),
 	lus AS
 	(SELECT date_missing, week_missing_range,  ROW_NUMBER() OVER (PARTITION BY YEAR(date_missing) ORDER BY date_missing) AS 'record'
@@ -157,11 +157,11 @@ WITH las AS
 	WHERE week_missing_range <> 0),
 	luus AS
 	(SELECT YEAR(date_missing) AS 'Calender_year', CAST(date_missing AS VARCHAR(20)) + '  ->  ' + CAST(LEAD(date_missing) OVER (PARTITION BY YEAR(date_missing) ORDER BY date_missing) AS VARCHAR(20))  AS 'missing_date_range',
-		   CAST(week_missing_range AS VARCHAR(20)) + '  ->  ' + CAST(LEAD(week_missing_range) OVER (PARTITION BY YEAR(date_missing) ORDER BY date_missing) AS VARCHAR(20)) AS 'range of week numbers missing', record
+	        CAST(week_missing_range AS VARCHAR(20)) + '  ->  ' + CAST(LEAD(week_missing_range) OVER (PARTITION BY YEAR(date_missing) ORDER BY date_missing) AS VARCHAR(20)) AS 'range of week numbers missing', record
 	FROM lus)
 SELECT Calender_year, missing_date_range, [range of week numbers missing]
 FROM luus
-WHERE record % 2 <> 0
+WHERE record % 2 <> 0;
 ```
 ![Alt text](<Data Mart pics/dms3.png>)
 
@@ -343,10 +343,10 @@ WITH las AS
 	(SELECT DISTINCT week_date, calender_year
 	FROM clean_weekly_sales_1
 	WHERE week_number =	CASE
-							WHEN calender_year = '2020' THEN 24
-							WHEN calender_year = '2019' THEN 24
-							WHEN calender_year = '2018' THEN 25
-						END ),
+				    WHEN calender_year = '2020' THEN 24
+				    WHEN calender_year = '2019' THEN 24
+				    WHEN calender_year = '2018' THEN 25
+				END ),
 	les AS
 	(SELECT *, DATEADD(WEEK, -VALUE, week_date) AS 'weeks_before_and_after', 'pre_4_weeks' AS 'pre_and_post_date'
 	FROM las, GENERATE_SERIES(1, 4)
@@ -382,7 +382,7 @@ WITH las AS
 	FROM kas)
 SELECT calender_year, pre_and_post_date, [total_sales_before_and_after_4_and_12weeks], 
 			[growth or reduction rate in actual sales values], [growth or reduction rate in percentage of sales]
-FROM kes
+FROM kes;
 ```
 ![Alt text](<Data Mart pics/dms15.png>)
 
@@ -399,8 +399,8 @@ WITH las AS
 	(SELECT DISTINCT week_date, calender_year
 	FROM clean_weekly_sales_1
 	WHERE week_number =	CASE
-							WHEN calender_year = '2020' THEN 24
-						END ),
+				   WHEN calender_year = '2020' THEN 24
+				END ),
 	les AS
 	(
 	SELECT *, DATEADD(WEEK, -VALUE, week_date) AS 'weeks_before_and_after', 'pre_12_weeks' AS 'pre_and_post_date'
@@ -442,8 +442,8 @@ WITH las AS
 	(SELECT DISTINCT week_date, calender_year
 	FROM clean_weekly_sales_1
 	WHERE week_number =	CASE
-							WHEN calender_year = '2020' THEN 24
-						END ),
+				   WHEN calender_year = '2020' THEN 24
+				END ),
 	les AS
 	(
 	SELECT *, DATEADD(WEEK, -VALUE, week_date) AS 'weeks_before_and_after', 'pre_12_weeks' AS 'pre_and_post_date'
@@ -486,8 +486,8 @@ WITH las AS
 	(SELECT DISTINCT week_date, calender_year
 	FROM clean_weekly_sales_1
 	WHERE week_number =	CASE
-							WHEN calender_year = '2020' THEN 24
-						END ),
+				   WHEN calender_year = '2020' THEN 24
+				END ),
 	les AS
 	(
 	SELECT *, DATEADD(WEEK, -VALUE, week_date) AS 'weeks_before_and_after', 'pre_12_weeks' AS 'pre_and_post_date'
@@ -530,8 +530,8 @@ WITH las AS
 	(SELECT DISTINCT week_date, calender_year
 	FROM clean_weekly_sales_1
 	WHERE week_number =	CASE
-							WHEN calender_year = '2020' THEN 24
-						END ),
+				   WHEN calender_year = '2020' THEN 24
+				END ),
 	les AS
 	(
 	SELECT *, DATEADD(WEEK, -VALUE, week_date) AS 'weeks_before_and_after', 'pre_12_weeks' AS 'pre_and_post_date'
@@ -575,8 +575,8 @@ WITH las AS
 	(SELECT DISTINCT week_date, calender_year
 	FROM clean_weekly_sales_1
 	WHERE week_number =	CASE
-							WHEN calender_year = '2020' THEN 24
-						END ),
+				   WHEN calender_year = '2020' THEN 24
+				END ),
 	les AS
 	(
 	SELECT *, DATEADD(WEEK, -VALUE, week_date) AS 'weeks_before_and_after', 'pre_12_weeks' AS 'pre_and_post_date'
