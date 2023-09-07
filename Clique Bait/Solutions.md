@@ -284,10 +284,10 @@ ORDER BY ROUND(CAST([product purchased] AS FLOAT)/CAST([product views] AS FLOAT)
 4. What is the average conversion rate from view to cart add?
 
 ```SQL
-SELECT ROUND(AVG(CAST([product cart add] AS FLOAT)/CAST([product views] AS FLOAT) * 100) , 2)
+SELECT ROUND(AVG(CAST([product cart add] AS FLOAT)/CAST([product views] AS FLOAT) * 100) , 2) AS 'average conversion rate from view to cart add'
 FROM clique_bait.temp_product
 ```
-![Alt text](<clique bait pics/cbs19.png>)
+![Alt text](<clique bait pics/cbs23.png>)
 
 5. What is the average conversion rate from cart add to purchase?
 
